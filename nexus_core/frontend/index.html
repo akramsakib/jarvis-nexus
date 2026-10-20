@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NEXUS</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="hud-shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <div class="brand-mark">N</div>
+          <div>
+            <div class="label">AUTONOMOUS PERSONAL INTELLIGENCE</div>
+            <h1>NEXUS</h1>
+          </div>
+        </div>
+
+        <nav>
+          <button class="nav active">Dashboard</button>
+          <button class="nav">Chat</button>
+          <button class="nav">Tasks</button>
+          <button class="nav">Memory</button>
+          <button class="nav">Tools</button>
+          <button class="nav">Settings</button>
+        </nav>
+
+        <div class="system-mini">
+          <div class="status-row"><span>System</span><span class="online">ONLINE</span></div>
+          <div class="status-row"><span>Voice</span><span>READY</span></div>
+          <div class="status-row"><span>Memory</span><span>READY</span></div>
+          <div class="status-row"><span>Security</span><span>ACTIVE</span></div>
+        </div>
+      </aside>
+
+      <main class="main-panel">
+        <header class="topbar">
+          <div>
+            <div class="eyebrow">SYSTEM: ONLINE</div>
+            <h2>Command Center</h2>
+          </div>
+          <div class="core-indicator">
+            <span class="pulse"></span>
+            <span>AI Core</span>
+          </div>
+        </header>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-title">CPU</div>
+            <div class="stat-value" id="cpu-value">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">RAM</div>
+            <div class="stat-value" id="ram-value">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">DISK</div>
+            <div class="stat-value" id="disk-value">--</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">UPTIME</div>
+            <div class="stat-value" id="uptime-value">--</div>
+          </div>
+        </section>
+
+        <section class="panel-grid">
+          <div class="panel big-panel">
+            <div class="panel-header">
+              <h3>Chat</h3>
+              <span class="tag">focus</span>
+            </div>
+            <div id="messages" class="messages">
+              <div class="message assistant">NEXUS online. Ask for a task, plan, or system status.</div>
+            </div>
+            <div class="composer">
+              <input id="chat-input" type="text" placeholder="Ask NEXUS anything..." />
+              <button id="send-button">Send</button>
+            </div>
+          </div>
+
+          <div class="panel side-panel">
+            <div class="panel-header">
+              <h3>Active Quest</h3>
+            </div>
+            <ul class="quest-list">
+              <li>Finish project brief</li>
+              <li>Review design system</li>
+              <li>Validate task flow</li>
+            </ul>
+            <div class="progress-row">
+              <span>Progress</span>
+              <span>82%</span>
+            </div>
+            <div class="meter"><span style="width: 82%"></span></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

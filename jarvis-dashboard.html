@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>J.A.R.V.I.S</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --c:#00ffff;--c2:#0055ff;--c3:#ff6600;--c4:#00ff88;
+  --red:#ff2244;--gold:#f0a500;--purple:#aa44ff;
+  --bg:#020810;--panel:rgba(0,18,40,0.8);
+}
+html,body{width:100vw;height:100vh;overflow:hidden;background:var(--bg);color:var(--c);font-family:'Exo 2',sans-serif;cursor:none;}
+#cur{position:fixed;width:16px;height:16px;border:1.5px solid var(--c);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);box-shadow:0 0 8px var(--c);}
+#cur::after{content:'';position:absolute;top:50%;left:50%;width:3px;height:3px;background:var(--c);border-radius:50%;transform:translate(-50%,-50%);}
+#bg{position:fixed;inset:0;z-index:0;}
+.hex{position:fixed;inset:0;z-index:1;opacity:.03;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50V18L28 2l28 16v32L28 66zm0-6l22-13V24L28 8 6 24v23l22 13z' fill='%2300ffff'/%3E%3C/svg%3E");background-size:56px 100px;}
+.scan{position:fixed;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--c),transparent);z-index:2;opacity:.25;animation:scan 7s linear infinite;}
+@keyframes scan{from{top:0}to{top:100%}}
+.cn{position:fixed;width:60px;height:60px;z-index:10;}
+.cn::before,.cn::after{content:'';position:absolute;background:var(--c);box-shadow:0 0 6px var(--c);}
+.cn::before{width:100%;height:1.5px;}.cn::after{width:1.5px;height:100%;}
+.tl{top:12px;left:12px;}.tr{top:12px;right:12px;transform:scaleX(-1);}
+.bl{bottom:12px;left:12px;transform:scaleY(-1);}.br{bottom:12px;right:12px;transform:scale(-1);}
+
+/* GRID */
+#app{position:relative;z-index:5;width:100vw;height:100vh;
+  display:grid;
+  grid-template-columns:250px 1fr 230px;
+  grid-template-rows:60px 1fr 44px;
+  gap:6px;padding:14px;}
+
+/* TOP BAR */
+#top{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(0,255,255,.1);padding-bottom:8px;}
+#logo{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,var(--c) 0%,var(--purple) 50%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:lp 4s ease-in-out infinite;}
+@keyframes lp{0%,100%{filter:drop-shadow(0 0 8px var(--c))}50%{filter:drop-shadow(0 0 20px var(--purple))}}
+#tag{font-size:7px;letter-spacing:4px;color:rgba(0,255,255,.25);margin-top:2px;}
+#clk{font-family:'Orbitron',monospace;font-size:28px;font-weight:700;color:#fff;text-shadow:0 0 15px var(--c);text-align:center;letter-spacing:2px;}
+#dt{font-size:8px;letter-spacing:3px;color:rgba(0,255,255,.35);text-align:center;margin-top:2px;}
+.sr{display:flex;gap:10px;align-items:center;}
+.dot{width:6px;height:6px;border-radius:50%;animation:bk 2s infinite;}
+.g{background:var(--c4);box-shadow:0 0 8px var(--c4);}
+.o{background:var(--c3);box-shadow:0 0 8px var(--c3);}
+.p{background:var(--purple);box-shadow:0 0 8px var(--purple);}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.15}}
+.sl{font-size:8px;letter-spacing:2px;color:rgba(0,255,255,.4);}
+
+/* PANEL */
+.panel{background:var(--panel);border:1px solid rgba(0,255,255,.08);border-radius:2px;padding:10px;position:relative;backdrop-filter:blur(16px);overflow:hidden;}
+.panel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,255,.4),transparent);animation:sw 5s linear infinite;}
+@keyframes sw{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+.pt{font-family:'Orbitron',monospace;font-size:7px;letter-spacing:4px;color:rgba(0,255,255,.35);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(0,255,255,.06);text-transform:uppercase;}
+
+/* LEFT COL */
+#left{display:flex;flex-direction:column;gap:6px;}
+
+/* WEATHER */
+.wm{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.wi{font-size:32px;}
+.wt{font-family:'Orbitron',monospace;font-size:32px;font-weight:900;color:#fff;line-height:1;}
+.wu{font-size:13px;color:var(--c);vertical-align:super;}
+.wc{font-size:9px;color:rgba(255,255,255,.55);letter-spacing:2px;margin-top:2px;}
+.wg{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-top:6px;}
+.ws{background:rgba(0,255,255,.03);border:1px solid rgba(0,255,255,.06);padding:5px;text-align:center;border-radius:1px;}
+.wv{font-family:'Orbitron',monospace;font-size:10px;color:var(--c);}
+.wl{font-size:7px;color:rgba(255,255,255,.18);letter-spacing:2px;margin-top:1px;}
+.sun{display:flex;justify-content:space-between;margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,255,255,.06);}
+.si{text-align:center;}
+.sv{font-family:'Orbitron',monospace;font-size:10px;color:var(--gold);}
+.sl2{font-size:7px;color:rgba(255,255,255,.18);margin-top:1px;}
+
+/* STOCKS */
+.stk{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(0,255,255,.04);}
+.stk:last-child{border:none;}
+.stn{font-size:9px;color:rgba(255,255,255,.6);}
+.stp{font-family:'Orbitron',monospace;font-size:9px;color:var(--c);}
+.stc{font-size:8px;padding:1px 4px;border-radius:1px;}
+.up{color:var(--c4);background:rgba(0,255,136,.08);}
+.dn{color:var(--red);background:rgba(255,34,68,.08);}
+
+/* SYS */
+.sb{margin-bottom:6px;}
+.sh{display:flex;justify-content:space-between;margin-bottom:3px;}
+.sn{font-size:8px;color:rgba(255,255,255,.3);letter-spacing:2px;}
+.sv2{font-family:'Orbitron',monospace;color:var(--c);font-size:8px;}
+.tr{height:3px;background:rgba(0,255,255,.06);border-radius:2px;overflow:hidden;}
+.fl{height:100%;border-radius:2px;transition:width 1.5s ease;}
+.cpu{background:linear-gradient(90deg,var(--c2),var(--c));}
+.mem{background:linear-gradient(90deg,#0044aa,var(--gold));}
+.net{background:linear-gradient(90deg,#002211,var(--c4));}
+.dsk{background:linear-gradient(90deg,#220011,var(--red));}
+
+/* WORLD CLOCKS */
+.wck{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid rgba(0,255,255,.04);}
+.wck:last-child{border:none;}
+.wck-city{font-size:8px;color:rgba(255,255,255,.35);letter-spacing:2px;}
+.wck-time{font-family:'Orbitron',monospace;font-size:9px;}
+
+/* CENTER */
+#center{display:flex;flex-direction:column;gap:6px;}
+
+/* CENTER TOP — REACTOR + GLOBE + WAVEFORM */
+#ctop{display:flex;gap:6px;height:165px;}
+
+/* REACTOR */
+#rw{width:155px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:transparent;border:none;}
+#rw::before{display:none;}
+.rp{position:relative;width:148px;height:148px;}
+.rg{position:absolute;border-radius:50%;border-style:solid;animation:sp linear infinite;}
+.g1{inset:0;border-width:2px;border-color:var(--c) transparent transparent transparent;animation-duration:3s;}
+.g2{inset:11px;border-width:1px;border-color:transparent var(--c2) transparent transparent;animation-duration:5s;animation-direction:reverse;}
+.g3{inset:22px;border-width:1.5px;border-color:var(--purple) transparent var(--purple) transparent;animation-duration:7s;}
+.g4{inset:33px;border-width:1px;border-color:transparent transparent var(--gold) transparent;animation-duration:4s;animation-direction:reverse;}
+.g5{inset:44px;border-width:1px;border-color:var(--c4) transparent transparent transparent;animation-duration:9s;}
+.g6{inset:4px;border-radius:50%;border:1px dashed rgba(170,68,255,.2);animation:sp 18s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.rdot{position:absolute;width:7px;height:7px;border-radius:50%;}
+.rc{position:absolute;inset:55px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,255,1) 0%,rgba(100,0,255,.8) 35%,rgba(0,100,255,.7) 60%,rgba(0,10,40,.9) 100%);box-shadow:0 0 35px var(--c),0 0 70px var(--purple),0 0 120px rgba(0,136,255,.2),inset 0 0 25px rgba(0,255,255,.6);display:flex;align-items:center;justify-content:center;animation:cp 2s ease-in-out infinite;}
+@keyframes cp{0%,100%{box-shadow:0 0 35px var(--c),0 0 70px var(--purple),inset 0 0 20px rgba(0,255,255,.5)}50%{box-shadow:0 0 55px var(--c),0 0 110px var(--purple),0 0 180px rgba(170,68,255,.15),inset 0 0 45px rgba(0,255,255,.8)}}
+.rt{font-family:'Orbitron',monospace;font-size:7px;color:#fff;text-align:center;letter-spacing:1px;text-shadow:0 0 8px var(--c);}
+
+/* GLOBE */
+#globe-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+#globe-canvas{flex:1;width:100%;}
+
+/* WAVEFORM */
+#wv-wrap{width:90px;flex-shrink:0;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;}
+.wb{width:5px;border-radius:3px;animation:wv 1.2s ease-in-out infinite;}
+@keyframes wv{0%,100%{transform:scaleY(.2);opacity:.4}50%{transform:scaleY(1);opacity:1}}
+
+/* NEWS PANEL */
+#np{flex:1;overflow:hidden;}
+.nl{height:calc(100% - 26px);overflow-y:auto;}
+.nl::-webkit-scrollbar{width:2px;}
+.nl::-webkit-scrollbar-thumb{background:rgba(0,136,255,.4);}
+.ni{border-left:2px solid var(--c);padding:4px 7px;margin-bottom:3px;cursor:pointer;transition:all .15s;background:rgba(0,255,255,.02);}
+.ni:hover{background:rgba(0,255,255,.07);border-left-color:var(--c3);transform:translateX(2px);}
+.ns{font-size:6px;letter-spacing:2px;color:var(--c3);margin-bottom:1px;}
+.nt{font-size:9px;color:rgba(255,255,255,.8);line-height:1.4;}
+
+/* QUICK LAUNCH */
+#ql{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.qb{background:rgba(0,255,255,.04);border:1px solid rgba(0,255,255,.12);color:var(--c);padding:4px 9px;font-size:8px;letter-spacing:2px;cursor:pointer;border-radius:1px;transition:all .15s;font-family:'Exo 2',sans-serif;}
+.qb:hover{background:rgba(0,255,255,.12);border-color:var(--c);}
+.qb.r{border-color:rgba(255,0,0,.3);color:#ff5555;background:rgba(255,0,0,.04);}
+.qb.r:hover{background:rgba(255,0,0,.12);}
+.qb.p{border-color:rgba(170,68,255,.3);color:var(--purple);background:rgba(170,68,255,.04);}
+.qb.p:hover{background:rgba(170,68,255,.12);}
+.qb.g{border-color:rgba(0,255,136,.2);color:var(--c4);background:rgba(0,255,136,.03);}
+.qb.g:hover{background:rgba(0,255,136,.1);}
+.qb.y{border-color:rgba(240,165,0,.25);color:var(--gold);background:rgba(240,165,0,.04);}
+.qb.y:hover{background:rgba(240,165,0,.12);}
+
+/* RIGHT COL */
+#right{display:flex;flex-direction:column;gap:6px;}
+
+/* WC COUNTDOWN */
+#wcc{text-align:center;}
+#wc-num{font-family:'Orbitron',monospace;font-size:12px;color:var(--c);font-weight:700;letter-spacing:1px;margin:4px 0;}
+.wc-sub{display:flex;justify-content:space-around;font-size:6px;color:rgba(0,255,255,.25);letter-spacing:2px;}
+
+/* PORTUGAL */
+#pt{background:rgba(0,255,100,.03);border-color:rgba(0,255,100,.12)!important;}
+.mrow{display:flex;justify-content:space-between;align-items:center;padding:3px 0;border-bottom:1px solid rgba(0,255,100,.06);font-size:8px;}
+.mrow:last-of-type{border:none;}
+.md{color:rgba(0,255,255,.35);}
+.mo{color:rgba(255,255,255,.7);}
+.mv{color:rgba(0,255,255,.3);}
+
+/* FOOTBALL */
+#fp{flex:1;overflow:hidden;}
+.fi{border-left:2px solid var(--c4);padding:5px 7px;margin-bottom:3px;cursor:pointer;transition:all .15s;background:rgba(0,255,136,.02);}
+.fi:hover{background:rgba(0,255,136,.07);transform:translateX(-2px);}
+.fs{font-size:7px;letter-spacing:2px;color:var(--c4);margin-bottom:1px;}
+.ft{font-size:9px;color:rgba(255,255,255,.75);line-height:1.3;}
+
+/* STATUS ROW */
+#srow{display:flex;flex-direction:column;gap:3px;}
+.stat-line{display:flex;justify-content:space-between;}
+.stat-key{font-size:8px;color:rgba(255,255,255,.3);letter-spacing:1px;}
+.stat-val{font-family:'Orbitron',monospace;font-size:8px;}
+
+/* BOTTOM */
+#bot{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(0,255,255,.08);padding-top:6px;}
+.bs{font-size:8px;letter-spacing:2px;color:rgba(0,255,255,.3);}.bs span{font-family:'Orbitron',monospace;color:var(--c);font-size:9px;}
+#js{font-family:'Orbitron',monospace;font-size:10px;letter-spacing:5px;color:var(--c);animation:bk 2.5s infinite;}
+.ds{display:flex;gap:4px;}
+.dd{width:4px;height:4px;border-radius:50%;animation:bc 1.4s infinite;}
+.dd:nth-child(1){background:var(--c);}
+.dd:nth-child(2){background:var(--purple);animation-delay:.2s;}
+.dd:nth-child(3){background:var(--gold);animation-delay:.4s;}
+@keyframes bc{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
+
+/* TICKER */
+#ticker{position:fixed;bottom:0;left:0;right:0;height:20px;background:rgba(0,4,12,.98);border-top:1px solid rgba(0,255,255,.08);z-index:30;display:flex;align-items:center;overflow:hidden;}
+#tl{padding:0 10px;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:3px;color:var(--c3);white-space:nowrap;border-right:1px solid rgba(0,255,255,.08);}
+#tt{white-space:nowrap;font-size:8px;color:rgba(0,255,255,.5);animation:tk 100s linear infinite;display:inline-block;padding-left:100%;}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-100%)}}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<canvas id="bg"></canvas>
+<div class="hex"></div>
+<div class="scan"></div>
+<div class="cn tl"></div><div class="cn tr"></div>
+<div class="cn bl"></div><div class="cn br"></div>
+
+<div id="app">
+
+  <!-- TOP BAR -->
+  <div id="top">
+    <div>
+      <div id="logo">J.A.R.V.I.S</div>
+      <div id="tag">JUST A RATHER VERY INTELLIGENT SYSTEM · HORSHAM PA 19044 · v4.0</div>
+    </div>
+    <div>
+      <div id="clk">--:--:--</div>
+      <div id="dt">INITIALIZING...</div>
+    </div>
+    <div class="sr">
+      <div class="dot g"></div><div class="sl">ONLINE</div>
+      <div class="dot o"></div><div class="sl">LIVE</div>
+      <div class="dot p"></div><div class="sl">AI</div>
+    </div>
+  </div>
+
+  <!-- LEFT -->
+  <div id="left">
+
+    <!-- WEATHER -->
+    <div class="panel">
+      <div class="pt">⬡ ATMOSPHERIC CONDITIONS</div>
+      <div class="wm">
+        <div class="wi" id="wi">🌤</div>
+        <div>
+          <div style="display:flex;align-items:flex-end;gap:2px;">
+            <div class="wt" id="wt">--</div><div class="wu">°F</div>
+          </div>
+          <div class="wc" id="wc">ACQUIRING...</div>
+          <div style="font-size:7px;color:rgba(0,255,255,.3);letter-spacing:2px;margin-top:1px;">HORSHAM, PA 19044</div>
+        </div>
+      </div>
+      <div class="wg">
+        <div class="ws"><div class="wv" id="wh">--%</div><div class="wl">HUMIDITY</div></div>
+        <div class="ws"><div class="wv" id="ww">--</div><div class="wl">WIND MPH</div></div>
+        <div class="ws"><div class="wv" id="wvi">--</div><div class="wl">VISIBILITY</div></div>
+        <div class="ws"><div class="wv" id="wu2">--</div><div class="wl">UV INDEX</div></div>
+      </div>
+      <div class="sun">
+        <div class="si"><div class="sv" id="sr2">--</div><div class="sl2">🌅 RISE</div></div>
+        <div class="si"><div class="sv" id="ss2">--</div><div class="sl2">🌇 SET</div></div>
+        <div class="si"><div class="sv" id="fl2" style="color:var(--c);">--°</div><div class="sl2">FEELS</div></div>
+      </div>
+    </div>
+
+    <!-- MARKETS -->
+    <div class="panel">
+      <div class="pt">⬡ LIVE MARKETS</div>
+      <div class="stk"><span class="stn">₿ BTC</span><span class="stp" id="btc-p">--</span><span class="stc up" id="btc-c">--</span></div>
+      <div class="stk"><span class="stn">◈ ETH</span><span class="stp" id="eth-p">--</span><span class="stc up" id="eth-c">--</span></div>
+      <div class="stk"><span class="stn">▲ AAPL</span><span class="stp" id="aapl-p">--</span><span class="stc up" id="aapl-c">--</span></div>
+      <div class="stk"><span class="stn">◆ TSLA</span><span class="stp" id="tsla-p">--</span><span class="stc up" id="tsla-c">--</span></div>
+      <div class="stk"><span class="stn">● SPY</span><span class="stp" id="spy-p">--</span><span class="stc up" id="spy-c">--</span></div>
+    </div>
+
+    <!-- SYSTEM DIAG -->
+    <div class="panel">
+      <div class="pt">⬡ SYSTEM DIAGNOSTICS</div>
+      <div class="sb"><div class="sh"><span class="sn">CPU</span><span class="sv2" id="cv">--</span></div><div class="tr"><div class="fl cpu" id="cb" style="width:0%"></div></div></div>
+      <div class="sb"><div class="sh"><span class="sn">MEMORY</span><span class="sv2" id="mv">--</span></div><div class="tr"><div class="fl mem" id="mb" style="width:0%"></div></div></div>
+      <div class="sb"><div class="sh"><span class="sn">NETWORK</span><span class="sv2" id="nv">--</span></div><div class="tr"><div class="fl net" id="nb" style="width:0%"></div></div></div>
+      <div class="sb" style="margin:0"><div class="sh"><span class="sn">STORAGE</span><span class="sv2" id="dv">--</span></div><div class="tr"><div class="fl dsk" id="db" style="width:0%"></div></div></div>
+    </div>
+
+    <!-- WORLD CLOCKS -->
+    <div class="panel">
+      <div class="pt">⬡ WORLD TIME</div>
+      <div id="wclocks"></div>
+    </div>
+
+    <!-- STATUS -->
+    <div class="panel" style="flex:1">
+      <div class="pt">⬡ SYSTEM STATUS</div>
+      <div id="srow">
+        <div class="stat-line"><span class="stat-key">AI CORE</span><span class="stat-val" style="color:var(--c4)">ONLINE</span></div>
+        <div class="stat-line"><span class="stat-key">VOICE ENGINE</span><span class="stat-val" style="color:var(--c4)">ACTIVE</span></div>
+        <div class="stat-line"><span class="stat-key">NEWS FEED</span><span class="stat-val" style="color:var(--c4)" id="feed-s">LIVE</span></div>
+        <div class="stat-line"><span class="stat-key">MARKET DATA</span><span class="stat-val" style="color:var(--gold)">LIVE</span></div>
+        <div class="stat-line"><span class="stat-key">SECURITY</span><span class="stat-val" style="color:var(--c4)">NOMINAL</span></div>
+        <div class="stat-line" style="margin-top:4px;padding-top:4px;border-top:1px solid rgba(0,255,255,.06)">
+          <span class="stat-key">THREAT</span>
+          <div style="display:flex;gap:2px;">
+            <div style="width:10px;height:6px;background:var(--c4);border-radius:1px;box-shadow:0 0 4px var(--c4);"></div>
+            <div style="width:10px;height:6px;background:rgba(0,255,136,.12);border-radius:1px;"></div>
+            <div style="width:10px;height:6px;background:rgba(0,255,136,.12);border-radius:1px;"></div>
+            <div style="width:10px;height:6px;background:rgba(0,255,136,.12);border-radius:1px;"></div>
+            <div style="width:10px;height:6px;background:rgba(0,255,136,.12);border-radius:1px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div id="center">
+
+    <!-- REACTOR + STATS + WAVEFORM — Clean Iron Man HUD -->
+    <div id="ctop" style="display:flex;gap:6px;height:165px;">
+
+      <!-- REACTOR — bigger and centered -->
+      <div id="rw" style="width:165px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:transparent;border:none;">
+        <div class="rp">
+          <div class="rg g1"></div><div class="rg g2"></div>
+          <div class="rg g3"></div><div class="rg g4"></div>
+          <div class="rg g5"></div><div class="rg g6"></div>
+          <div class="rdot" style="top:-3px;left:50%;transform:translateX(-50%);background:var(--c);box-shadow:0 0 8px var(--c);"></div>
+          <div class="rdot" style="bottom:-3px;left:50%;transform:translateX(-50%);background:var(--purple);box-shadow:0 0 8px var(--purple);"></div>
+          <div class="rdot" style="left:-3px;top:50%;transform:translateY(-50%);background:var(--gold);box-shadow:0 0 8px var(--gold);"></div>
+          <div class="rdot" style="right:-3px;top:50%;transform:translateY(-50%);background:var(--c4);box-shadow:0 0 8px var(--c4);"></div>
+          <div class="rc"><div class="rt">ARC<br>v4.0</div></div>
+        </div>
+      </div>
+
+      <!-- LIVE STATS PANEL -->
+      <div class="panel" style="flex:1;display:flex;flex-direction:column;justify-content:space-between;">
+        <div class="pt">⬡ LIVE INTELLIGENCE SUMMARY</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;flex:1;align-items:center;">
+          <div style="text-align:center;padding:6px;background:rgba(0,255,255,.03);border:1px solid rgba(0,255,255,.08);border-radius:2px;">
+            <div style="font-size:7px;color:rgba(255,255,255,.3);letter-spacing:2px;margin-bottom:3px;">TEMPERATURE</div>
+            <div style="font-family:Orbitron,monospace;font-size:20px;color:#fff;font-weight:700;" id="stat-temp">--°F</div>
+            <div style="font-size:7px;color:var(--c);margin-top:1px;" id="stat-cond">--</div>
+          </div>
+          <div style="text-align:center;padding:6px;background:rgba(170,68,255,.03);border:1px solid rgba(170,68,255,.1);border-radius:2px;">
+            <div style="font-size:7px;color:rgba(255,255,255,.3);letter-spacing:2px;margin-bottom:3px;">BITCOIN</div>
+            <div style="font-family:Orbitron,monospace;font-size:14px;color:var(--gold);font-weight:700;" id="stat-btc">--</div>
+            <div style="font-size:7px;margin-top:1px;" id="stat-btc-c">--</div>
+          </div>
+          <div style="text-align:center;padding:6px;background:rgba(0,255,136,.02);border:1px solid rgba(0,255,136,.08);border-radius:2px;">
+            <div style="font-size:7px;color:rgba(255,255,255,.3);letter-spacing:2px;margin-bottom:3px;">LOCATION</div>
+            <div style="font-family:Orbitron,monospace;font-size:10px;color:var(--c4);font-weight:700;">HORSHAM</div>
+            <div style="font-size:7px;color:rgba(0,255,136,.4);margin-top:1px;">PA 19044 · USA</div>
+          </div>
+          <div style="text-align:center;padding:6px;background:rgba(255,102,0,.03);border:1px solid rgba(255,102,0,.1);border-radius:2px;">
+            <div style="font-size:7px;color:rgba(255,255,255,.3);letter-spacing:2px;margin-bottom:3px;">WORLD CUP</div>
+            <div style="font-family:Orbitron,monospace;font-size:10px;color:var(--c3);font-weight:700;" id="stat-wc">--D</div>
+            <div style="font-size:7px;color:rgba(255,102,0,.4);margin-top:1px;">🇵🇹 PORTUGAL</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WAVEFORM -->
+      <div class="panel" style="width:85px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">
+        <div class="pt" style="text-align:center;margin:0 0 4px 0;">⬡ VOICE</div>
+        <div style="display:flex;align-items:center;gap:3px;height:55px;">
+          <div class="wb" style="background:var(--c);height:8px;animation-delay:0s;"></div>
+          <div class="wb" style="background:var(--c2);height:18px;animation-delay:.1s;"></div>
+          <div class="wb" style="background:var(--c);height:30px;animation-delay:.2s;"></div>
+          <div class="wb" style="background:var(--purple);height:45px;animation-delay:.3s;"></div>
+          <div class="wb" style="background:var(--c);height:55px;animation-delay:.4s;"></div>
+          <div class="wb" style="background:var(--gold);height:40px;animation-delay:.3s;"></div>
+          <div class="wb" style="background:var(--c);height:25px;animation-delay:.2s;"></div>
+          <div class="wb" style="background:var(--c2);height:14px;animation-delay:.1s;"></div>
+          <div class="wb" style="background:var(--c);height:6px;animation-delay:0s;"></div>
+        </div>
+        <div style="font-family:Orbitron,monospace;font-size:7px;letter-spacing:2px;color:var(--c4);animation:bk 2s infinite;">● LIVE</div>
+      </div>
+    </div>
+
+    <!-- NEWS -->
+    <div class="panel" id="np" style="flex:1;overflow:hidden;">
+      <div class="pt">⬡ WORLD INTELLIGENCE FEED</div>
+      <div class="nl" id="nlist" style="max-height:320px;overflow-y:auto;"><div style="color:rgba(0,255,255,.25);font-size:9px;letter-spacing:2px;text-align:center;padding:15px;">ACQUIRING...</div></div>
+    </div>
+
+    <!-- NEURAL GLOBE -->
+    <div class="panel" style="height:200px;padding:8px;display:flex;flex-direction:column;">
+      <div class="pt">⬡ NEURAL NETWORK GLOBE — LIVE INTELLIGENCE MAP</div>
+      <canvas id="globe-canvas" style="flex:1;width:100%;display:block;"></canvas>
+    </div>
+
+    <!-- QUICK LAUNCH -->
+    <div class="panel" style="padding:7px 10px;">
+      <div id="ql">
+        <button class="qb p" onclick="window.open('https://claude.ai','_blank')">🤖 CLAUDE</button>
+        <button class="qb r" onclick="window.open('https://youtube.com','_blank')">▶ YOUTUBE</button>
+        <button class="qb" onclick="window.open('https://bbc.com/news','_blank')">📺 BBC</button>
+        <button class="qb y" onclick="window.open('https://finance.yahoo.com','_blank')">📈 MARKETS</button>
+        <button class="qb g" onclick="window.open('https://gmail.com','_blank')">✉ GMAIL</button>
+        <button class="qb g" onclick="window.open('https://open.spotify.com','_blank')">🎵 SPOTIFY</button>
+        <button class="qb" onclick="window.open('https://weather.com','_blank')">🌤 WEATHER</button>
+        <button class="qb" onclick="window.open('https://twitter.com','_blank')">𝕏 TWITTER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div id="right">
+
+    <!-- WORLD CUP -->
+    <div class="panel" id="wcc">
+      <div class="pt">⬡ FIFA WORLD CUP 2026</div>
+      <div style="text-align:center;">
+        <div style="font-size:22px;margin-bottom:3px;">🏆</div>
+        <div id="wc-num">--D --H --M --S</div>
+        <div class="wc-sub"><span>DAYS</span><span>HRS</span><span>MIN</span><span>SEC</span></div>
+        <div style="font-size:7px;color:rgba(0,255,255,.25);letter-spacing:2px;margin-top:3px;">KICKOFF · JUN 11 2026</div>
+      </div>
+    </div>
+
+    <!-- PORTUGAL -->
+    <div class="panel" id="pt">
+      <div class="pt" style="color:rgba(0,255,136,.4);">⬡ 🇵🇹 PORTUGAL GROUP A</div>
+      <div style="font-size:8px;color:var(--c4);letter-spacing:2px;text-align:center;margin-bottom:6px;">QUALIFIED ✓ · RONALDO LEADS</div>
+      <div class="mrow"><span class="md">JUN 11</span><span class="mo">🇺🇸 USA</span><span class="mv">LA</span></div>
+      <div class="mrow"><span class="md">JUN 16</span><span class="mo">🇹🇿 TANZANIA</span><span class="mv">SEA</span></div>
+      <div class="mrow"><span class="md">JUN 21</span><span class="mo">🇲🇦 MOROCCO</span><span class="mv">NY</span></div>
+      <div style="text-align:center;margin-top:6px;padding-top:6px;border-top:1px solid rgba(0,255,100,.08);">
+        <div style="font-size:8px;color:rgba(255,255,255,.4);">CR7 · THE GOAT</div>
+        <div style="font-family:Orbitron,monospace;font-size:16px;color:var(--gold);font-weight:900;">⭐ 900+ GOALS</div>
+      </div>
+    </div>
+
+    <!-- FOOTBALL -->
+    <div class="panel" id="fp" style="flex:1;overflow:hidden;">
+      <div class="pt">⬡ ⚽ FOOTBALL LIVE</div>
+      <div id="flist" style="height:calc(100% - 26px);overflow-y:auto;">
+        <div style="color:rgba(0,255,136,.25);font-size:9px;letter-spacing:2px;text-align:center;padding:10px;">LOADING...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM -->
+  <div id="bot">
+    <div class="bs">UPTIME <span id="upt">00:00:00</span></div>
+    <div id="js">● JARVIS v4.0</div>
+    <div class="ds"><div class="dd"></div><div class="dd"></div><div class="dd"></div></div>
+  </div>
+</div>
+
+<div id="ticker">
+  <div id="tl">INTEL</div>
+  <div style="flex:1;overflow:hidden;"><span id="tt">INITIALIZING JARVIS INTELLIGENCE FEED v4.0...</span></div>
+</div>
+
+<script>
+// CURSOR
+const cur=document.getElementById('cur')
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px'})
+
+// BG
+const cv=document.getElementById('bg'),cx=cv.getContext('2d')
+cv.width=window.innerWidth;cv.height=window.innerHeight
+window.addEventListener('resize',()=>{cv.width=window.innerWidth;cv.height=window.innerHeight})
+const pts=Array.from({length:100},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,s:Math.random()*1.5+.3,a:Math.random()*.35+.08,purple:Math.random()<.3}))
+function drawBg(){
+  cx.clearRect(0,0,cv.width,cv.height)
+  const g=cx.createRadialGradient(cv.width/2,cv.height/2,0,cv.width/2,cv.height/2,cv.width)
+  g.addColorStop(0,'rgba(0,10,30,1)');g.addColorStop(.5,'rgba(0,6,20,1)');g.addColorStop(1,'rgba(2,4,12,1)')
+  cx.fillStyle=g;cx.fillRect(0,0,cv.width,cv.height)
+  const t=Date.now()/12000
+  for(let i=0;i<8;i++){const y=(cv.height/7*i+t*12)%cv.height;cx.strokeStyle='rgba(0,255,255,0.012)';cx.lineWidth=1;cx.beginPath();cx.moveTo(0,y);cx.lineTo(cv.width,y);cx.stroke()}
+  pts.forEach((p,i)=>{
+    p.x+=p.vx;p.y+=p.vy
+    if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0
+    if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0
+    cx.beginPath();cx.arc(p.x,p.y,p.s,0,Math.PI*2)
+    cx.fillStyle=p.purple?`rgba(120,0,255,${p.a})`:`rgba(0,150,255,${p.a})`;cx.fill()
+  })
+  requestAnimationFrame(drawBg)
+}
+drawBg()
+
+// CLOCK — 12hr format
+const DAYS=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY']
+const MONTHS=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC']
+let t0=Date.now()
+function tick(){
+  const n=new Date()
+  let h=n.getHours(),ampm=h>=12?'PM':'AM'
+  h=h%12||12
+  document.getElementById('clk').textContent=`${String(h).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')} ${ampm}`
+  document.getElementById('dt').textContent=`${DAYS[n.getDay()]} // ${MONTHS[n.getMonth()]} ${n.getDate()}, ${n.getFullYear()}`
+  const u=Math.floor((Date.now()-t0)/1000)
+  document.getElementById('upt').textContent=`${String(Math.floor(u/3600)).padStart(2,'0')}:${String(Math.floor(u%3600/60)).padStart(2,'0')}:${String(u%60).padStart(2,'0')}`
+}
+setInterval(tick,1000);tick()
+
+// WORLD CUP COUNTDOWN
+function wcc(){
+  const d=new Date('2026-06-11T16:00:00Z')-new Date()
+  if(d<=0){document.getElementById('wc-num').textContent='KICKOFF!';return}
+  const days=Math.floor(d/(864e5)),h=String(Math.floor(d%864e5/36e5)).padStart(2,'0')
+  const m=String(Math.floor(d%36e5/6e4)).padStart(2,'0'),s=String(Math.floor(d%6e4/1e3)).padStart(2,'0')
+  document.getElementById('wc-num').textContent=`${days}D ${h}H ${m}M ${s}S`
+}
+setInterval(wcc,1000);wcc()
+
+// STATS
+function stats(){
+  const c=12+Math.random()*28,m=40+Math.random()*20,n=5+Math.random()*60,d=48+Math.random()*7
+  document.getElementById('cv').textContent=c.toFixed(1)+'%';document.getElementById('cb').style.width=c+'%'
+  document.getElementById('mv').textContent=m.toFixed(1)+'%';document.getElementById('mb').style.width=m+'%'
+  document.getElementById('nv').textContent=(n/10).toFixed(1)+' MB/s';document.getElementById('nb').style.width=n+'%'
+  document.getElementById('dv').textContent=d.toFixed(1)+'%';document.getElementById('db').style.width=d+'%'
+}
+setInterval(stats,2000);stats()
+
+// WEATHER
+async function loadWeather(){
+  try{
+    const w=await fetch('https://api.open-meteo.com/v1/forecast?latitude=40.1776&longitude=-75.3596&current_weather=true&hourly=relativehumidity_2m,visibility,uv_index,apparent_temperature&daily=sunrise,sunset&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=America/New_York').then(r=>r.json())
+    const c=w.current_weather
+    document.getElementById('wt').textContent=Math.round(c.temperature)
+    const icons={0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',51:'🌦',61:'🌧',71:'🌨',80:'🌧',95:'⛈'}
+    const descs={0:'CLEAR SKIES',1:'MOSTLY CLEAR',2:'PARTLY CLOUDY',3:'OVERCAST',45:'FOGGY',51:'LIGHT DRIZZLE',61:'RAINY',71:'SNOWING',80:'SHOWERS',95:'THUNDERSTORM'}
+    document.getElementById('wi').textContent=icons[c.weathercode]||'🌡'
+    document.getElementById('wc').textContent=descs[c.weathercode]||'NOMINAL'
+    document.getElementById('ww').textContent=Math.round(c.windspeed)
+    const h=w.hourly
+    if(h){
+      document.getElementById('wh').textContent=(h.relativehumidity_2m?.[0]||'--')+'%'
+      document.getElementById('wvi').textContent=h.visibility?((h.visibility[0]/1609).toFixed(1))+' mi':'--'
+      document.getElementById('wu2').textContent=h.uv_index?.[0]??'--'
+      document.getElementById('fl2').textContent=Math.round(h.apparent_temperature?.[0]||c.temperature)+'°'
+    }
+    if(w.daily){
+      const sr=new Date(w.daily.sunrise[0]).toLocaleTimeString([],{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:true})
+      const ss=new Date(w.daily.sunset[0]).toLocaleTimeString([],{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:true})
+      document.getElementById('sr2').textContent=sr
+      document.getElementById('ss2').textContent=ss
+    }
+  }catch(e){}
+}
+loadWeather();setInterval(loadWeather,5*60*1000)
+
+// STOCKS
+async function loadStocks(){
+  try{
+    const cr=await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true').then(r=>r.json())
+    if(cr.bitcoin){const b=cr.bitcoin,c=(b.usd_24h_change||0);document.getElementById('btc-p').textContent='$'+Math.round(b.usd).toLocaleString();document.getElementById('btc-c').textContent=(c>0?'+':'')+c.toFixed(1)+'%';document.getElementById('btc-c').className='stc '+(c>0?'up':'dn')}
+    if(cr.ethereum){const e=cr.ethereum,c=(e.usd_24h_change||0);document.getElementById('eth-p').textContent='$'+Math.round(e.usd).toLocaleString();document.getElementById('eth-c').textContent=(c>0?'+':'')+c.toFixed(1)+'%';document.getElementById('eth-c').className='stc '+(c>0?'up':'dn')}
+  }catch(e){}
+  for(const [sym,id] of [['AAPL','aapl'],['TSLA','tsla'],['SPY','spy']]){
+    try{
+      const d=await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=1d`).then(r=>r.json())
+      const q=d?.chart?.result?.[0]?.meta
+      if(q){const p=q.regularMarketPrice||0,prev=q.previousClose||p,ch=((p-prev)/prev*100);document.getElementById(`${id}-p`).textContent='$'+p.toFixed(2);document.getElementById(`${id}-c`).textContent=(ch>0?'+':'')+ch.toFixed(2)+'%';document.getElementById(`${id}-c`).className='stc '+(ch>0?'up':'dn')}
+    }catch(e){}
+  }
+}
+loadStocks();setInterval(loadStocks,60*1000)
+
+// NEWS
+async function loadNews(){
+  const feeds=[
+      {n:'BBC',u:'https://feeds.bbci.co.uk/news/world/rss.xml'},
+      {n:'BBC UK',u:'https://feeds.bbci.co.uk/news/uk/rss.xml'},
+      {n:'BBC TECH',u:'https://feeds.bbci.co.uk/news/technology/rss.xml'},
+      {n:'BBC BUSI',u:'https://feeds.bbci.co.uk/news/business/rss.xml'},
+    ]
+  const all=[]
+  for(const f of feeds){
+    try{
+      const d=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent(f.u)).then(r=>r.json())
+      const x=new DOMParser().parseFromString(d.contents,'text/xml')
+      ;[...x.querySelectorAll('item')].slice(0,3).forEach(i=>{
+        const t=i.querySelector('title')?.textContent?.trim(),l=i.querySelector('link')?.textContent?.trim()||'#'
+        if(t)all.push({src:f.n,title:t,link:l})
+      })
+    }catch(e){}
+  }
+  const list=document.getElementById('nlist')
+  if(!all.length){setTimeout(loadNews,20000);return}
+  list.innerHTML=''
+  all.forEach(item=>{
+    const d=document.createElement('div');d.className='ni'
+    d.innerHTML=`<div class="ns">${item.src}</div><div class="nt">${item.title}</div>`
+    d.onclick=()=>window.open(item.link,'_blank')
+    list.appendChild(d)
+  })
+  document.getElementById('tt').textContent=all.map(i=>`[ ${i.src} ] ${i.title}`).join('   ///   ')
+  document.getElementById('feed-s').textContent='LIVE'
+}
+loadNews();setInterval(loadNews,5*60*1000)
+
+// FOOTBALL
+async function loadFootball(){
+  try{
+    const d=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://feeds.bbci.co.uk/sport/football/rss.xml')).then(r=>r.json())
+    const x=new DOMParser().parseFromString(d.contents,'text/xml')
+    const items=[...x.querySelectorAll('item')].slice(0,8)
+    const list=document.getElementById('flist')
+    if(!items.length){setTimeout(loadFootball,20000);return}
+    list.innerHTML=''
+    items.forEach(i=>{
+      const t=i.querySelector('title')?.textContent?.trim(),l=i.querySelector('link')?.textContent?.trim()||'#'
+      if(!t)return
+      const d2=document.createElement('div');d2.className='fi'
+      d2.innerHTML=`<div class="fs">⚽ FOOTBALL</div><div class="ft">${t}</div>`
+      d2.onclick=()=>window.open(l,'_blank')
+      list.appendChild(d2)
+    })
+  }catch(e){setTimeout(loadFootball,20000)}
+}
+loadFootball();setInterval(loadFootball,5*60*1000)
+
+// WORLD CLOCKS — 12hr format
+const zones=[
+  {city:'HORSHAM',z:'America/New_York',color:'#00ffff'},
+  {city:'LONDON',z:'Europe/London',color:'#aa44ff'},
+  {city:'KATHMANDU',z:'Asia/Kathmandu',color:'#f0a500'},
+  {city:'DUBAI',z:'Asia/Dubai',color:'#00ff88'},
+  {city:'TOKYO',z:'Asia/Tokyo',color:'#ff6600'},
+]
+function updateClocks(){
+  document.getElementById('wclocks').innerHTML=zones.map(z=>{
+    const t=new Date().toLocaleTimeString('en-US',{timeZone:z.z,hour:'2-digit',minute:'2-digit',hour12:true})
+    return `<div class="wck"><span class="wck-city">${z.city}</span><span class="wck-time" style="color:${z.color}">${t}</span></div>`
+  }).join('')
+}
+setInterval(updateClocks,1000);updateClocks()
+
+// ── UHD NEURAL GLOBE — INTERACTIVE ──────────────────────────
+const gc = document.getElementById('globe-canvas')
+if(gc){
+  const gx = gc.getContext('2d')
+  function resizeG(){
+    const r = gc.parentElement.getBoundingClientRect()
+    gc.width = r.width - 16
+    gc.height = r.height - 28
+  }
+  resizeG(); window.addEventListener('resize', resizeG)
+
+  // State
+  let ang = 0
+  let tilt = 0.2  // slight vertical tilt
+  let isDragging = false
+  let lastX = 0, lastY = 0
+  let spinVelX = 0.08  // auto-spin speed
+  let spinVelY = 0
+  let selectedNode = null
+  let hoveredNode = null
+
+  // Cities
+  const nodes = [
+    {lat:40.7,lon:-74.0,city:'NEW YORK',c:'#00ffff',region:'NA',info:'Financial Hub'},
+    {lat:34.0,lon:-118.2,city:'LOS ANGELES',c:'#00ddff',region:'NA',info:'Media Capital'},
+    {lat:41.9,lon:-87.6,city:'CHICAGO',c:'#00ffff',region:'NA',info:'Midwest Hub'},
+    {lat:19.4,lon:-99.1,city:'MEXICO CITY',c:'#00ccff',region:'NA',info:'Pop: 22M'},
+    {lat:43.7,lon:-79.4,city:'TORONTO',c:'#00ffff',region:'NA',info:'Canada HQ'},
+    {lat:51.5,lon:-0.1,city:'LONDON',c:'#aa44ff',region:'EU',info:'Global Finance'},
+    {lat:48.9,lon:2.3,city:'PARIS',c:'#bb55ff',region:'EU',info:'City of Light'},
+    {lat:52.5,lon:13.4,city:'BERLIN',c:'#aa44ff',region:'EU',info:'Tech Capital'},
+    {lat:41.9,lon:12.5,city:'ROME',c:'#cc66ff',region:'EU',info:'Eternal City'},
+    {lat:40.4,lon:-3.7,city:'MADRID',c:'#aa44ff',region:'EU',info:'Iberian Hub'},
+    {lat:38.7,lon:-9.1,city:'LISBON',c:'#00ff88',region:'EU',info:'🇵🇹 PORTUGAL HOME'},
+    {lat:35.7,lon:139.7,city:'TOKYO',c:'#f0a500',region:'AS',info:'Pop: 37M'},
+    {lat:31.2,lon:121.5,city:'SHANGHAI',c:'#ff8800',region:'AS',info:'China Finance'},
+    {lat:28.6,lon:77.2,city:'NEW DELHI',c:'#f0a500',region:'AS',info:'Pop: 32M'},
+    {lat:1.3,lon:103.8,city:'SINGAPORE',c:'#ffaa00',region:'AS',info:'Asia Gateway'},
+    {lat:37.6,lon:127.0,city:'SEOUL',c:'#f0a500',region:'AS',info:'K-Tech Hub'},
+    {lat:25.2,lon:55.3,city:'DUBAI',c:'#ffd700',region:'AS',info:'Gold Capital'},
+    {lat:55.8,lon:37.6,city:'MOSCOW',c:'#ff4444',region:'AS',info:'Eurasian Hub'},
+    {lat:-1.3,lon:36.8,city:'NAIROBI',c:'#00ff66',region:'AF',info:'Africa Tech'},
+    {lat:6.5,lon:3.4,city:'LAGOS',c:'#00ee55',region:'AF',info:'Pop: 15M'},
+    {lat:30.0,lon:31.2,city:'CAIRO',c:'#00ff66',region:'AF',info:'Ancient Capital'},
+    {lat:-23.5,lon:-46.6,city:'SAO PAULO',c:'#ff6600',region:'SA',info:'Brazil Hub'},
+    {lat:-34.6,lon:-58.4,city:'BUENOS AIRES',c:'#ff7700',region:'SA',info:'Argentina'},
+    {lat:-33.9,lon:151.2,city:'SYDNEY',c:'#00ffcc',region:'OC',info:'Down Under'},
+    {lat:27.7,lon:85.3,city:'KATHMANDU',c:'#ffaaff',region:'AS',info:'Nepal Capital'},
+  ]
+
+  // Neural connections
+  const connections = []
+  nodes.forEach((a,i) => {
+    nodes.forEach((b,j) => {
+      if(i>=j) return
+      const dlat=a.lat-b.lat,dlon=a.lon-b.lon
+      if(Math.sqrt(dlat*dlat+dlon*dlon)<50) connections.push({a:i,b:j})
+    })
+  })
+
+  // Particles
+  const particles = connections.map(c=>({conn:c,t:Math.random(),speed:0.004+Math.random()*0.005}))
+
+  // MOUSE DRAG TO SPIN
+  gc.addEventListener('mousedown', e => {
+    isDragging = true
+    lastX = e.clientX
+    lastY = e.clientY
+    spinVelX = 0
+    spinVelY = 0
+    gc.style.cursor = 'grabbing'
+  })
+  document.addEventListener('mousemove', e => {
+    if(!isDragging) return
+    const dx = e.clientX - lastX
+    const dy = e.clientY - lastY
+    spinVelX = dx * 0.3
+    spinVelY = dy * 0.1
+    ang += dx * 0.3
+    tilt = Math.max(-0.5, Math.min(0.5, tilt + dy * 0.005))
+    lastX = e.clientX
+    lastY = e.clientY
+  })
+  document.addEventListener('mouseup', () => {
+    isDragging = false
+    gc.style.cursor = 'grab'
+  })
+
+  // HOVER
+  gc.addEventListener('mousemove', e => {
+    if(isDragging) return
+    const rect = gc.getBoundingClientRect()
+    const mx = e.clientX - rect.left
+    const my = e.clientY - rect.top
+    const W=gc.width,H=gc.height,cx=W/2,cy=H/2,R=Math.min(W,H)/2-8
+    hoveredNode = null
+    nodes.forEach(n => {
+      const p = project(n.lat, n.lon, cx, cy, R)
+      if(!p.visible) return
+      if(Math.hypot(mx-p.x, my-p.y) < 12) {
+        hoveredNode = n
+        gc.style.cursor = 'pointer'
+      }
+    })
+    if(!hoveredNode && !isDragging) gc.style.cursor = 'grab'
+  })
+
+  // CLICK — select city and show info
+  gc.addEventListener('click', e => {
+    const rect = gc.getBoundingClientRect()
+    const mx = e.clientX - rect.left
+    const my = e.clientY - rect.top
+    const W=gc.width,H=gc.height,cx=W/2,cy=H/2,R=Math.min(W,H)/2-8
+    let clicked = null
+    nodes.forEach(n => {
+      const p = project(n.lat, n.lon, cx, cy, R)
+      if(!p.visible) return
+      if(Math.hypot(mx-p.x, my-p.y) < 12) clicked = n
+    })
+    if(clicked) {
+      selectedNode = selectedNode === clicked ? null : clicked
+      // Show city popup
+      showCityPopup(clicked)
+    } else {
+      selectedNode = null
+      hideCityPopup()
+    }
+  })
+
+  gc.style.cursor = 'grab'
+
+  function showCityPopup(node) {
+    let popup = document.getElementById('city-popup')
+    if(!popup) {
+      popup = document.createElement('div')
+      popup.id = 'city-popup'
+      popup.style.cssText = `position:absolute;background:rgba(0,10,30,.95);border:1px solid ${node.c};border-radius:2px;padding:8px 12px;font-family:Orbitron,monospace;font-size:9px;color:${node.c};z-index:100;pointer-events:none;box-shadow:0 0 20px ${node.c}44;backdrop-filter:blur(10px);letter-spacing:2px;`
+      document.getElementById('center').appendChild(popup)
+    }
+    popup.style.borderColor = node.c
+    popup.style.color = node.c
+    popup.style.boxShadow = `0 0 20px ${node.c}44`
+    popup.innerHTML = `
+      <div style="font-size:10px;font-weight:700;margin-bottom:4px;">${node.city}</div>
+      <div style="color:rgba(255,255,255,.6);font-size:8px;">${node.info}</div>
+      <div style="color:rgba(255,255,255,.4);font-size:7px;margin-top:3px;">
+        LAT: ${node.lat.toFixed(1)}° · LON: ${node.lon.toFixed(1)}°
+      </div>
+    `
+    popup.style.display = 'block'
+  }
+
+  function hideCityPopup() {
+    const popup = document.getElementById('city-popup')
+    if(popup) popup.style.display = 'none'
+  }
+
+  function project(lat, lon, cx, cy, R) {
+    const lr = (lon + ang) * Math.PI/180
+    const la = lat * Math.PI/180
+    const cosLr = Math.cos(lr)
+    return {
+      x: cx + R * Math.cos(la) * Math.sin(lr),
+      y: cy - R * (Math.sin(la) * Math.cos(tilt) - cosLr * Math.sin(tilt) * 0.3),
+      depth: (cosLr + 1) / 2,
+      visible: cosLr > -0.15
+    }
+  }
+
+  function drawGlobe() {
+    const W=gc.width, H=gc.height
+    const cx=W/2, cy=H/2, R=Math.min(W,H)/2-8
+    gx.clearRect(0,0,W,H)
+
+    // Globe base
+    const radGrad = gx.createRadialGradient(cx-R*.25,cy-R*.25,0,cx,cy,R)
+    radGrad.addColorStop(0,'rgba(0,40,100,.3)')
+    radGrad.addColorStop(.5,'rgba(0,15,50,.4)')
+    radGrad.addColorStop(1,'rgba(0,0,15,.7)')
+    gx.beginPath();gx.arc(cx,cy,R,0,Math.PI*2)
+    gx.fillStyle=radGrad;gx.fill()
+
+    // Atmosphere
+    const atmGrad = gx.createRadialGradient(cx,cy,R*.88,cx,cy,R*1.06)
+    atmGrad.addColorStop(0,'rgba(0,100,255,.0)')
+    atmGrad.addColorStop(.5,'rgba(0,150,255,.07)')
+    atmGrad.addColorStop(1,'rgba(0,50,200,.0)')
+    gx.beginPath();gx.arc(cx,cy,R*1.06,0,Math.PI*2)
+    gx.fillStyle=atmGrad;gx.fill()
+
+    // Border
+    gx.beginPath();gx.arc(cx,cy,R,0,Math.PI*2)
+    gx.strokeStyle='rgba(0,150,255,.2)';gx.lineWidth=1.5;gx.stroke()
+
+    // Grid
+    for(let lat=-75;lat<=75;lat+=15){
+      const y=cy-R*Math.sin(lat*Math.PI/180)*(Math.cos(tilt))
+      const r2=R*Math.cos(lat*Math.PI/180)
+      gx.beginPath();gx.ellipse(cx,y,r2,r2*.13,0,0,Math.PI*2)
+      gx.strokeStyle=lat===0?'rgba(0,200,255,.18)':'rgba(0,100,200,.07)'
+      gx.lineWidth=lat===0?1:.5;gx.stroke()
+    }
+    for(let lon=0;lon<180;lon+=15){
+      const a=(lon+ang)*Math.PI/180
+      gx.beginPath();gx.ellipse(cx,cy,R*Math.abs(Math.cos(a)),R,0,0,Math.PI*2)
+      gx.strokeStyle=`rgba(0,80,180,.07)`;gx.lineWidth=.5;gx.stroke()
+    }
+
+    // Neural connections
+    connections.forEach(conn => {
+      const a=project(nodes[conn.a].lat,nodes[conn.a].lon,cx,cy,R)
+      const b=project(nodes[conn.b].lat,nodes[conn.b].lon,cx,cy,R)
+      if(!a.visible||!b.visible) return
+      const depth=(a.depth+b.depth)/2
+      gx.beginPath();gx.moveTo(a.x,a.y);gx.lineTo(b.x,b.y)
+      gx.strokeStyle=`rgba(0,180,255,${depth*.12})`;gx.lineWidth=.6;gx.stroke()
+    })
+
+    // Shooting particles
+    particles.forEach(p => {
+      p.t += p.speed
+      if(p.t>1) p.t=0
+      const a=project(nodes[p.conn.a].lat,nodes[p.conn.a].lon,cx,cy,R)
+      const b=project(nodes[p.conn.b].lat,nodes[p.conn.b].lon,cx,cy,R)
+      if(!a.visible||!b.visible) return
+      const px=a.x+(b.x-a.x)*p.t, py=a.y+(b.y-a.y)*p.t
+      const depth=(a.depth+b.depth)/2
+      gx.beginPath();gx.arc(px,py,1.8,0,Math.PI*2)
+      gx.fillStyle=`rgba(0,255,255,${depth*.85})`;gx.fill()
+      for(let i=1;i<=5;i++){
+        const tt=p.t-i*.018; if(tt<0) continue
+        const tx=a.x+(b.x-a.x)*tt, ty=a.y+(b.y-a.y)*tt
+        gx.beginPath();gx.arc(tx,ty,.8,0,Math.PI*2)
+        gx.fillStyle=`rgba(0,200,255,${depth*(.35-i*.06)})`;gx.fill()
+      }
+    })
+
+    // City nodes
+    const now=Date.now()
+    nodes.forEach(n => {
+      const p=project(n.lat,n.lon,cx,cy,R)
+      if(!p.visible) return
+      const pulse=(Math.sin(now/600+n.lon*.1)*.5+.5)
+      const isSelected = selectedNode===n
+      const isHovered = hoveredNode===n
+      const size = isSelected ? 7 : isHovered ? 5.5 : 3.5
+
+      // Glow rings
+      if(isSelected || isHovered) {
+        gx.beginPath();gx.arc(p.x,p.y,size+6+pulse*4,0,Math.PI*2)
+        gx.strokeStyle=n.c+'33';gx.lineWidth=1;gx.stroke()
+      }
+      gx.beginPath();gx.arc(p.x,p.y,size+2+pulse*3,0,Math.PI*2)
+      gx.strokeStyle=n.c+(isSelected?'66':'22');gx.lineWidth=.8;gx.stroke()
+
+      // Core
+      gx.beginPath();gx.arc(p.x,p.y,size,0,Math.PI*2)
+      const dg=gx.createRadialGradient(p.x-size*.3,p.y-size*.3,0,p.x,p.y,size)
+      dg.addColorStop(0,'rgba(255,255,255,.95)')
+      dg.addColorStop(.3,n.c+'ff')
+      dg.addColorStop(1,n.c+'44')
+      gx.fillStyle=dg;gx.globalAlpha=p.depth*.95;gx.fill();gx.globalAlpha=1
+
+      // Always show label for selected
+      if(isSelected||isHovered) {
+        gx.font=`${isSelected?'bold ':''} 9px Orbitron,monospace`
+        gx.fillStyle=n.c;gx.shadowColor=n.c;gx.shadowBlur=8
+        gx.fillText(n.city,p.x+size+3,p.y-2)
+        gx.shadowBlur=0
+      }
+    })
+
+    // Specular highlight
+    const sg=gx.createRadialGradient(cx-R*.35,cy-R*.35,0,cx-R*.2,cy-R*.2,R*.75)
+    sg.addColorStop(0,'rgba(255,255,255,.07)')
+    sg.addColorStop(.6,'rgba(255,255,255,.01)')
+    sg.addColorStop(1,'rgba(255,255,255,.0)')
+    gx.beginPath();gx.arc(cx,cy,R,0,Math.PI*2);gx.fillStyle=sg;gx.fill()
+
+    // Auto-spin with inertia
+    if(!isDragging) {
+      spinVelX *= 0.95
+      ang += spinVelX + 0.06
+    }
+
+    requestAnimationFrame(drawGlobe)
+  }
+  drawGlobe()
+}
+
+// Update summary stats
+function updateSummary(){
+  const temp=document.getElementById('wt')?.textContent
+  if(temp&&temp!=='--'){document.getElementById('stat-temp').textContent=temp+'°F';document.getElementById('stat-cond').textContent=document.getElementById('wc')?.textContent||''}
+  const btc=document.getElementById('btc-p')?.textContent
+  if(btc&&btc!=='--'){document.getElementById('stat-btc').textContent=btc;const btcc=document.getElementById('btc-c')?.textContent||'';const el=document.getElementById('stat-btc-c');el.textContent=btcc;el.style.color=btcc.includes('-')?'#ff2244':'#00ff88'}
+  const wc=document.getElementById('wc-num')?.textContent?.split('D')[0]||'--'
+  document.getElementById('stat-wc').textContent=wc+'D'
+}
+setInterval(updateSummary,2000)
+setTimeout(updateSummary,3000)
+
+// LIVE WORLD CUP SCORES
+async function loadLiveScores(){
+    const el = document.getElementById('live-scores')
+    if(!el) return
+    try{
+        const data = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard').then(r=>r.json())
+        const events = data.events || []
+        if(!events.length){
+            el.innerHTML='<div style="color:rgba(0,255,136,.3);font-size:8px;text-align:center;padding:10px;">NO LIVE MATCHES</div>'
+            return
+        }
+        el.innerHTML = events.slice(0,6).map(e=>{
+            const comps = e.competitions?.[0]
+            const teams = comps?.competitors || []
+            if(teams.length < 2) return ''
+            const home = teams[0]?.team?.abbreviation || ''
+            const away = teams[1]?.team?.abbreviation || ''
+            const hs = teams[0]?.score || '0'
+            const as_ = teams[1]?.score || '0'
+            const status = e.status?.type?.shortDetail || ''
+            const isPortugal = home.includes('POR') || away.includes('POR')
+            const borderColor = isPortugal ? 'var(--c4)' : 'rgba(0,255,136,.3)'
+            const state = e.status?.type?.state || ''
+            const live = state === 'in'
+            return `<div style="background:rgba(0,255,136,.03);border:1px solid ${borderColor};border-radius:2px;padding:6px;margin-bottom:4px;${isPortugal?'box-shadow:0 0 8px rgba(0,255,136,.2);':''}">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-size:9px;color:rgba(255,255,255,.8);">${home}</span>
+                    <span style="font-family:Orbitron,monospace;font-size:11px;color:${isPortugal?'var(--c4)':'var(--c)'};">${hs}-${as_}</span>
+                    <span style="font-size:9px;color:rgba(255,255,255,.8);">${away}</span>
+                </div>
+                <div style="font-size:7px;color:${live?'var(--c4)':'rgba(0,255,255,.3)'};text-align:center;margin-top:2px;${live?'animation:bk 1s infinite':''}">
+                    ${live?'● LIVE':status}
+                </div>
+            </div>`
+        }).join('')
+    }catch(e){
+        el.innerHTML='<div style="color:rgba(0,255,136,.2);font-size:8px;text-align:center;padding:10px;">LOADING...</div>'
+    }
+}
+loadLiveScores()
+setInterval(loadLiveScores, 60*1000)
+
+</script>
+</body>
+</html>
